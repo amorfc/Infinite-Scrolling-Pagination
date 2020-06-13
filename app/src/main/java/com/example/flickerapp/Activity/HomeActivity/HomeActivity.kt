@@ -33,7 +33,7 @@ class HomeActivity : BaseActivity() {
             override fun onResponse(call: Call<ApiRes>, response: Response<ApiRes>) {
                 if (response.isSuccessful) {
                     Log.i("ResponseDone", "ResponseDone")
-                    mGridLayoutManager = GridLayoutManager(this@HomeActivity,3)
+                    mGridLayoutManager = GridLayoutManager(this@HomeActivity,2)
                     mAdapter = PhotoAdapter(response.body()?.photos?.photo!!)
                     mRecyclerView = findViewById(R.id.photos_recycler_view)
                     mRecyclerView.layoutManager = mGridLayoutManager

@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.flickerapp.Activity.FullScreenActivity.FullScreenActivity
 import com.example.flickerapp.Models.Photo
 import com.example.flickerapp.R
 import com.example.flickerapp.inflate
@@ -44,7 +45,8 @@ class PhotoAdapter(private val photosList: ArrayList<Photo>):RecyclerView.Adapte
 
         override fun onClick(v: View) {
             val context = v.context
-            val photoIntent = Intent(context,testactivity::class.java)
+            val photoIntent = Intent(context,FullScreenActivity::class.java)
+            photoIntent.putExtra(PHOTO_KEY,imgUrl)
             context.startActivity(photoIntent)
             Log.d("RecyclerView", "CLICK!")
         }
