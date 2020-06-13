@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">FlickerApp</string>
+    <string name="api_key">abf1ef5d1f3e6738d71041a687b9c4e0</string>
+    <string name="getRecent">flickr.photos.getRecent</string>
+</resources>
