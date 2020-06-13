@@ -1,9 +1,8 @@
 package com.example.flickerapp.Activity.HomeActivity
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flickerapp.Activity.BaseActivity
 import com.example.flickerapp.Activity.RecentEndPoint
@@ -22,8 +21,8 @@ class HomeActivity : BaseActivity() {
 
     private var arrayList : ArrayList<Photo> = ArrayList()
 
-    lateinit var mLayoutManager: LinearLayoutManager
-    lateinit var mAdapter: Adapter
+    lateinit var mGridLayoutManager: GridLayoutManager
+    lateinit var mAdapter: PhotoAdapter
     lateinit var mRecyclerView: RecyclerView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,10 +33,10 @@ class HomeActivity : BaseActivity() {
             override fun onResponse(call: Call<ApiRes>, response: Response<ApiRes>) {
                 if (response.isSuccessful) {
                     Log.i("ResponseDone", "ResponseDone")
-                    mLayoutManager = LinearLayoutManager(this@HomeActivity)
-                    mAdapter = Adapter(response.body()?.photos?.photo!!)
+                    mGridLayoutManager = GridLayoutManager(this@HomeActivity,3)
+                    mAdapter = PhotoAdapter(response.body()?.photos?.photo!!)
                     mRecyclerView = findViewById(R.id.photos_recycler_view)
-                    mRecyclerView.layoutManager = mLayoutManager
+                    mRecyclerView.layoutManager = mGridLayoutManager
                     mRecyclerView.adapter = mAdapter
 
                 }
