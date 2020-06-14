@@ -1,4 +1,4 @@
-package com.example.flickerapp
+package com.example.flickerapp.utils
 
 import android.view.LayoutInflater
 import android.view.View

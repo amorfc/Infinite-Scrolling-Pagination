@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.flickerapp.Activity.FullScreenActivity.FullScreenActivity
 import com.example.flickerapp.Models.Photo
 import com.example.flickerapp.R
-import com.example.flickerapp.inflate
+import com.example.flickerapp.utils.inflate
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.photo_item.view.*
 
@@ -39,7 +39,7 @@ class PhotoAdapter(private val photosList: ArrayList<Photo>):RecyclerView.Adapte
 
         fun photoBind(photo: Photo){
             this.photo = photo
-            this.imgUrl = "https://farm${photo.farm}.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_b.png"
+            this.imgUrl = "https://farm${photo.farm}.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}.png"
             Picasso.get().load(imgUrl).into(view.image_view_rcy)
         }
 

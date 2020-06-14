@@ -2,7 +2,8 @@ package com.example.flickerapp.Activity.HomeActivity
 
 import android.os.Bundle
 import android.util.Log
-import androidx.recyclerview.widget.GridLayoutManager
+import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flickerapp.Activity.BaseActivity
 import com.example.flickerapp.Activity.RecentEndPoint
@@ -15,36 +16,84 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class HomeActivity : BaseActivity() {
-    private var loadTime: Long = 500 * 1L
-    private var isLoading: Boolean = false
-    private var itemPosition: Int = 0 //Position inf
-
-    private var arrayList : ArrayList<Photo> = ArrayList()
-
-    lateinit var mGridLayoutManager: GridLayoutManager
+    var totalItemCount : Int = 0
+    var pastVisibleItemCount: Int =0
+    var visibleItemCount: Int = 0
+    var isLoading: Boolean = false
+    var pageId =1
+    var photos : MutableList<Photo> = mutableListOf()
+    lateinit var mLinearLayoutManager: LinearLayoutManager
     lateinit var mAdapter: PhotoAdapter
     lateinit var mRecyclerView: RecyclerView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val request = ServiceBuilder.buildService(RecentEndPoint::class.java)
-        val call = request.getRecent(getString(R.string.api_key),"json",1)
-        call.enqueue(object : Callback<ApiRes> {
+        mLinearLayoutManager = LinearLayoutManager(this@HomeActivity)
+        mRecyclerView = findViewById(R.id.photos_recycler_view)
+        mRecyclerView.layoutManager = mLinearLayoutManager
+        mRecyclerView.setHasFixedSize(true)
+        fetchPhotosList(pageId)
+    }
+
+    fun fetchPhotosList(pageId :Int){
+        ServiceBuilder
+            .buildService(RecentEndPoint::class.java)
+            .getRecent(getString(R.string.api_key),"json",pageId)
+            .enqueue(object : Callback<ApiRes> {
             override fun onResponse(call: Call<ApiRes>, response: Response<ApiRes>) {
                 if (response.isSuccessful) {
-                    Log.i("ResponseDone", "ResponseDone")
-                    mGridLayoutManager = GridLayoutManager(this@HomeActivity,2)
-                    mAdapter = PhotoAdapter(response.body()?.photos?.photo!!)
-                    mRecyclerView = findViewById(R.id.photos_recycler_view)
-                    mRecyclerView.layoutManager = mGridLayoutManager
-                    mRecyclerView.adapter = mAdapter
-
+                    response.body()?.let {
+                        isLoading = true
+                        setUpAdapter(it.photos.photo)
+                        Log.d("SizeOfApiCall", ""+ it.photos.photo.size )
+                    } ?: run{
+                        Log.i("ERRORR","ERROR")
+                        Toast.makeText(baseContext, "Error fetching images list", Toast.LENGTH_LONG).show()
+                    }
                 }
             }
             override fun onFailure(call: Call<ApiRes>, t: Throwable) {
                 Log.i("ERRORR","ERROR")
             }
         })
+    }
+
+    fun setUpAdapter(photosList: ArrayList<Photo>) {
+        if(photos.size == 0){
+                photos = photosList
+                mAdapter = PhotoAdapter(photos as ArrayList<Photo>)
+                mRecyclerView.adapter = mAdapter
+        }else{
+            var currentPosition = (mRecyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+            photos.addAll(photosList)
+            mAdapter.notifyDataSetChanged()
+            mRecyclerView.scrollToPosition(currentPosition)
+        }
+        mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener(){
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if(dy>0){
+                    visibleItemCount = mLinearLayoutManager.childCount
+                    totalItemCount =mLinearLayoutManager.itemCount
+                    pastVisibleItemCount = (mRecyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+
+                if(isLoading){
+                        if(visibleItemCount + pastVisibleItemCount >= totalItemCount ){
+                        isLoading=false
+                        pageId++
+                        fetchPhotosList(pageId)
+                    }
+                }
+                }
+            }
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+            }
+        })
 
     }
+    companion object {
+        val INTENT_PHOTO_KEY = "PHOTO"
+    }
+
 }
