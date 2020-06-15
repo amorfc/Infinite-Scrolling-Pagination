@@ -22,10 +22,9 @@ class FullScreenActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.full_screen_photo)
         val photo : Photo = intent.getSerializableExtra(Constants.GET_INTENT_PHOTO) as Photo
-        val imgUrl = "https://farm${photo.farm}.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_b.png"
         Picasso
             .get()
-            .load(imgUrl)
+            .load("https://farm${photo.farm}.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_b.png")
             .into(photoView,object : Callback{
                 override fun onSuccess() {
                     fullPhotoProgressBar.visibility = View.GONE
