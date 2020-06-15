@@ -8,11 +8,12 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flickerapp.Activity.BaseActivity
-import com.example.flickerapp.Activity.RecentEndPoint
-import com.example.flickerapp.Activity.ServiceBuilder
+import com.example.flickerapp.API.RecentEndPoint
+import com.example.flickerapp.API.ServiceBuilder
 import com.example.flickerapp.Models.ApiRes
 import com.example.flickerapp.Models.Photo
 import com.example.flickerapp.R
+import com.example.flickerapp.utils.Constants
 import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -31,7 +32,7 @@ class HomeActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        progressBar.visibility = View.VISIBLE
+        progressBarForLoadMore.visibility = View.VISIBLE
         mLinearLayoutManager = GridLayoutManager(this@HomeActivity,3)
         mRecyclerView = findViewById(R.id.photos_recycler_view)
         mRecyclerView.layoutManager = mLinearLayoutManager
@@ -42,15 +43,14 @@ class HomeActivity : BaseActivity() {
     fun fetchPhotosList(pageId :Int){
         ServiceBuilder
             .buildService(RecentEndPoint::class.java)
-            .getRecent(getString(R.string.api_key),"json",pageId)
+            .getRecent(Constants.api_key,pageId)
             .enqueue(object : Callback<ApiRes> {
             override fun onResponse(call: Call<ApiRes>, response: Response<ApiRes>) {
-                progressBar.visibility = View.GONE
+                progressBarForLoadMore.visibility = View.GONE
                 if (response.isSuccessful) {
                     response.body()?.let {
                         isLoading = true
                         setUpAdapter(it.photos.photo)
-                        Log.d("SizeOfApiCall", ""+ it.photos.photo.size )
                     } ?: run{
                         Log.i("ERRORR","ERROR")
                         Toast.makeText(baseContext, "Error fetching images list", Toast.LENGTH_LONG).show()
@@ -59,7 +59,7 @@ class HomeActivity : BaseActivity() {
             }
             override fun onFailure(call: Call<ApiRes>, t: Throwable) {
                 Log.i("ERRORR","ERROR")
-                progressBar.visibility = View.GONE
+                progressBarForLoadMore.visibility = View.GONE
             }
         })
     }
@@ -77,27 +77,31 @@ class HomeActivity : BaseActivity() {
         }
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener(){
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if(dy>0){
-                    visibleItemCount = mLinearLayoutManager.childCount
-                    totalItemCount =mLinearLayoutManager.itemCount
-                    pastVisibleItemCount = (mRecyclerView.layoutManager as GridLayoutManager).findFirstVisibleItemPosition()
+                visibleItemCount = mLinearLayoutManager.childCount
+                totalItemCount = mLinearLayoutManager.itemCount
+                pastVisibleItemCount =(mRecyclerView.layoutManager as GridLayoutManager).findFirstVisibleItemPosition()
 
-                if(isLoading){
-                        if(visibleItemCount + pastVisibleItemCount >= totalItemCount ){
-                        isLoading=false
-                        progressBar.visibility =View.VISIBLE
+
+                if (dy > 0) {
+                    if (isLoading && visibleItemCount + pastVisibleItemCount >= totalItemCount) {
+                        isLoading = false
+                        progressBarForLoadMore.visibility = View.VISIBLE
                         pageId++
                         fetchPhotosList(pageId)
+
                     }
                 }
-                }
             }
-
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
             }
         })
-
+        //swipe to refresh
+        swipeToRefresh.setOnRefreshListener {
+            photos.clear()
+            fetchPhotosList(1)
+            swipeToRefresh.isRefreshing = false
+        }
     }
     companion object {
         val INTENT_PHOTO_KEY = "PHOTO"

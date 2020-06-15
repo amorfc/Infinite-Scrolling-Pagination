@@ -1,4 +1,4 @@
-package com.example.flickerapp.Activity
+package com.example.flickerapp.API
 
 import com.example.flickerapp.utils.Constants
 import okhttp3.OkHttpClient
@@ -10,7 +10,7 @@ object ServiceBuilder {
     private val client = OkHttpClient.Builder().build()
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl("https://www.flickr.com/services/rest/")
+        .baseUrl(Constants.baseUrl)
         .addConverterFactory(GsonConverterFactory.create())
         .client(client)
         .build()

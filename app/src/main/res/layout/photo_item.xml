@@ -7,8 +7,9 @@
     android:layout_height="wrap_content">
 
     <ProgressBar
-        android:id="@+id/progressBar2"
-        style="?android:attr/progressBarStyle"
+        android:id="@+id/progressBarForEachPhoto"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:indeterminate="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"

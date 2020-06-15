@@ -3,9 +3,8 @@ package com.example.flickerapp.Models
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
-
+//SerializableName because of JSON object keys (which is our REST API response) needs to match with SerializableName which must to be correct  to assign Model properties for
 data class ApiRes (
-
     @SerializedName("photos")
     val photos :Photos,
 
@@ -32,7 +31,7 @@ data class Photos(
 
 )
 
-//This is Serializable for Intent to get that class to use("getSerializableExtra()")
+//This is extends from  Serializable for Intent to get that class from the activity to use like "getSerializableExtra()"
 data class Photo (
     @SerializedName("id")
     val id:String,
