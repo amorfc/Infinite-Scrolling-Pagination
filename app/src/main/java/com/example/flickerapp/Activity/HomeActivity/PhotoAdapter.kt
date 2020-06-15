@@ -1,5 +1,6 @@
 package com.example.flickerapp.Activity.HomeActivity
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.util.Log
 import android.view.View
@@ -8,9 +9,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.flickerapp.Activity.FullScreenActivity.FullScreenActivity
 import com.example.flickerapp.Models.Photo
 import com.example.flickerapp.R
+import com.example.flickerapp.utils.Constants
 import com.example.flickerapp.utils.inflate
+import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.photo_item.view.*
+import java.lang.Exception
+
 
 class PhotoAdapter(private val photosList: ArrayList<Photo>):RecyclerView.Adapter<PhotoAdapter.PhotoHolder>(){
     private val VIEW_TYPE_ITEM = 0 //Normal item
@@ -33,27 +39,34 @@ class PhotoAdapter(private val photosList: ArrayList<Photo>):RecyclerView.Adapte
         private var view: View = v
         private var photo: Photo? = null
         private var imgUrl : String? = null
+
         init {
             v.setOnClickListener(this)
         }
 
         fun photoBind(photo: Photo){
             this.photo = photo
-            this.imgUrl = "https://farm${photo.farm}.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}.png"
-            Picasso.get().load(imgUrl).into(view.image_view_rcy)
+            this.imgUrl = "https://farm${photo.farm}.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_t.png"
+            Picasso.get()
+                .load(imgUrl)
+                .into(view.image_view_rcy,object :Callback{
+                    override fun onSuccess() {
+                        view.progressBar2.visibility = View.GONE
+                    }
+                    override fun onError(e: Exception?) {
+                        TODO("Not yet implemented")
+                    }
+                })
         }
 
         override fun onClick(v: View) {
             val context = v.context
             val photoIntent = Intent(context,FullScreenActivity::class.java)
-            photoIntent.putExtra(PHOTO_KEY,imgUrl)
+            photoIntent.putExtra(Constants.GET_INTENT_PHOTO,photo)
             context.startActivity(photoIntent)
             Log.d("RecyclerView", "CLICK!")
         }
 
-        companion object {
-            private val PHOTO_KEY = "PHOTO"
-        }
     }
 }
 

@@ -1,7 +1,7 @@
 package com.example.flickerapp.Models
 
 import com.google.gson.annotations.SerializedName
-
+import java.io.Serializable
 
 
 data class ApiRes (
@@ -32,7 +32,7 @@ data class Photos(
 
 )
 
-
+//This is Serializable for Intent to get that class to use("getSerializableExtra()")
 data class Photo (
     @SerializedName("id")
     val id:String,
@@ -60,7 +60,7 @@ data class Photo (
 
     @SerializedName("isfamily")
     val isfamily :Int
-)
+):Serializable{}
 
 
 

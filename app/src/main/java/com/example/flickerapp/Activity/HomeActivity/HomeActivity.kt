@@ -2,7 +2,9 @@ package com.example.flickerapp.Activity.HomeActivity
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flickerapp.Activity.BaseActivity
@@ -11,6 +13,7 @@ import com.example.flickerapp.Activity.ServiceBuilder
 import com.example.flickerapp.Models.ApiRes
 import com.example.flickerapp.Models.Photo
 import com.example.flickerapp.R
+import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -28,7 +31,8 @@ class HomeActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        mLinearLayoutManager = LinearLayoutManager(this@HomeActivity)
+        progressBar.visibility = View.VISIBLE
+        mLinearLayoutManager = GridLayoutManager(this@HomeActivity,3)
         mRecyclerView = findViewById(R.id.photos_recycler_view)
         mRecyclerView.layoutManager = mLinearLayoutManager
         mRecyclerView.setHasFixedSize(true)
@@ -41,6 +45,7 @@ class HomeActivity : BaseActivity() {
             .getRecent(getString(R.string.api_key),"json",pageId)
             .enqueue(object : Callback<ApiRes> {
             override fun onResponse(call: Call<ApiRes>, response: Response<ApiRes>) {
+                progressBar.visibility = View.GONE
                 if (response.isSuccessful) {
                     response.body()?.let {
                         isLoading = true
@@ -54,6 +59,7 @@ class HomeActivity : BaseActivity() {
             }
             override fun onFailure(call: Call<ApiRes>, t: Throwable) {
                 Log.i("ERRORR","ERROR")
+                progressBar.visibility = View.GONE
             }
         })
     }
@@ -64,7 +70,7 @@ class HomeActivity : BaseActivity() {
                 mAdapter = PhotoAdapter(photos as ArrayList<Photo>)
                 mRecyclerView.adapter = mAdapter
         }else{
-            var currentPosition = (mRecyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+            var currentPosition = (mRecyclerView.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
             photos.addAll(photosList)
             mAdapter.notifyDataSetChanged()
             mRecyclerView.scrollToPosition(currentPosition)
@@ -74,11 +80,12 @@ class HomeActivity : BaseActivity() {
                 if(dy>0){
                     visibleItemCount = mLinearLayoutManager.childCount
                     totalItemCount =mLinearLayoutManager.itemCount
-                    pastVisibleItemCount = (mRecyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                    pastVisibleItemCount = (mRecyclerView.layoutManager as GridLayoutManager).findFirstVisibleItemPosition()
 
                 if(isLoading){
                         if(visibleItemCount + pastVisibleItemCount >= totalItemCount ){
                         isLoading=false
+                        progressBar.visibility =View.VISIBLE
                         pageId++
                         fetchPhotosList(pageId)
                     }

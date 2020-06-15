@@ -1,26 +1,41 @@
 package com.example.flickerapp.Activity.FullScreenActivity
 
-import android.content.Context
-import android.content.Intent
+
 import android.os.Bundle
-import android.widget.ImageView
+import android.telecom.Call
+import android.view.View
+import androidx.core.net.toUri
 import com.example.flickerapp.Activity.BaseActivity
-import com.example.flickerapp.Activity.HomeActivity.HomeActivity
+import com.example.flickerapp.Models.Photo
 import com.example.flickerapp.R
+import com.example.flickerapp.utils.Constants
+import com.github.chrisbanes.photoview.PhotoView
+import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.full_screen_photo.*
-import kotlinx.android.synthetic.main.full_screen_photo.view.*
-import kotlinx.android.synthetic.main.full_screen_photo.view.full_screen_image_view
+import java.lang.Exception
 
-const val PHOTO= "PHOTO"
 
 class FullScreenActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.full_screen_photo)
-        val imgUrl = intent.getStringExtra(HomeActivity.INTENT_PHOTO_KEY)
-        Picasso.get().load(imgUrl).into(full_screen_image_view)
+        val photo : Photo = intent.getSerializableExtra(Constants.GET_INTENT_PHOTO) as Photo
+        val imgUrl = "https://farm${photo.farm}.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_b.png"
+        Picasso
+            .get()
+            .load(imgUrl)
+            .into(photoView,object : Callback{
+                override fun onSuccess() {
+                    fullPhotoProgressBar.visibility = View.GONE
+                }
+
+                override fun onError(e: Exception?) {
+                    TODO("Not yet implemented")
+                }
+            })
+
     }
 }
 /*
